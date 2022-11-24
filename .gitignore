@@ -1,0 +1,14 @@
+.vs
+.vscode
+Debug
+Release
+*.exe
+x64
+*.aps
+.cd
+*.db
+*.dll
+*.txt
+*.ncb
+*.ipch
+*.suo
