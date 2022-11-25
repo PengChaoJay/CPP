@@ -33,13 +33,15 @@ public:
     string m_name;
     int m_age;
 };
-```
+
 
 REGISTER_CLASS(A);
 REGISTER_CLASS_FIELD(A,m_name,string);
 REGISTER_CLASS_FIELD(A,m_age,int);
 REGISTER_CLASS_METHOD(A,f1）;
-REGISTER_CLASS_METHOD(A,f2）;```
+REGISTER_CLASS_METHOD(A,f2）;
+
+```
 
 # 三种类型的宏
 1. 类对象的反射:
