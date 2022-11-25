@@ -190,11 +190,15 @@ namespace zpc {
 offsetof(s,m) 类似的写法
 有些编译器编译不通过
 
-黑科技2：
+2. 黑科技2：
+``` C++
 Test t;
 size_t offset = (size_t)(&t.member) - (size_t)(&t);
-类成员函数的反射
+```
+
+### 类成员函数的反射
 类成员函数指针：
+``` C++ 
 typedef std::function<void(Test*)>test_method;
 method method = &Test::f1;
 
@@ -204,3 +208,4 @@ method(t);
 uintptr_t ptr = (uintptr_t)& method;
 (*(test_method*)(ptr))(t)
 function<void(delctype(this))
+```
