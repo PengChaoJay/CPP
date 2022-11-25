@@ -50,8 +50,10 @@ REGISTER_CLASS(A);
 REGISTER_CLASS_FIELD(A,m_name,string)
 3. 类成员函数的反射
 REGISTER_CLASS_METHOD(A,f1）
+
 ## 反射用法：
-```int main()
+``` C++
+int main()
 {
     ClasFactory * factory = Singleton<ClassFactory> :: instance();
     Object * a = factory ->create_class("A");
@@ -67,11 +69,13 @@ REGISTER_CLASS_METHOD(A,f1）
     // 类成员函数的反射
     a->call("f1");
     a->call("f2");
-}```
+}
+```
 
 # 基本框架
 ## 单例模式
-```#pragma once
+```C++
+#pragma once
 namespace zpc
 {
         namespace utility
@@ -100,10 +104,12 @@ namespace zpc
                 template<typename T>
                 T* Singleton<T>::m_instance = nullptr;
         }
-}```
+}
+```
 创建的单例模式，保证创建的工厂只有一个，实现全局唯一的工厂类。
 ## 工厂模式
-```#pragma once
+```C++
+#pragma once
 #include <string>
 #include<map>
 #include "Singleton.h"
@@ -136,9 +142,12 @@ namespace  zpc {
                 };
 
         }
-}```
+}
+
+```
 ### 辅助类
-```#pragma once
+``` C++
+#pragma once
 #include "ClassFactory.h"
 namespace zpc {
         namespace reflect
@@ -158,14 +167,15 @@ namespace zpc {
                         return obj;                                                \
                 }                                                                        \
         ClassRegister ClassRegister##className(#className,createObject##className)
-        }```
+        }
+```
 
-类对象的反射
 
-类成员的反射
-关键问题：如何获取类成员数据的内存地址偏移（offset)
+### 类成员的反射
+**关键问题**：如何获取类成员数据的内存地址偏移（offset)
 
-黑科技1：
+1. 黑科技1：
+``` C++
 #define OFFSET(className,fieldName)\
     ((size_t)(&((className*)0)->fieldName))
         auto offset = (size_t) & ((Test *)0)->m_age;
@@ -173,10 +183,13 @@ namespace zpc {
         Test t("kitty", 18);
         int age = *(int*)((size_t)&t + offset);
         std::cout << age << std::endl;
+```
 标准库中存在着
-#include <stddef.h> 
+
+**#include <stddef.h>** 
 offsetof(s,m) 类似的写法
 有些编译器编译不通过
+
 黑科技2：
 Test t;
 size_t offset = (size_t)(&t.member) - (size_t)(&t);
