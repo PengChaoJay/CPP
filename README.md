@@ -1,19 +1,21 @@
 # CPPReflection
-介绍
-概念
-反射机制允许程序在运行时借助Reflection API 取得任何类的内部信息，并能直接操作对象的内部属性和方法。（比如UE中的反射的实现）
-问题
+# 介绍
+## 概念
+反射机制允许程序在运行时借助Reflection API 取得任何类的内部信息，并能直接操作对象的内部属性和方法。（比如UE中的反射的实现）<br>
+
+
+## 问题
 1. C++不支持反射
 2. 很多业务场景需要依赖反射机制，比如：RPC，WEB MVC，对象序列化等。
-场景：
+## 场景：
 RPC，远程过程调用，比如客户端向服务端发送请求，服务端处理之后给客户端发送处理结果，客户端如何获得对象，获得对象里面的方法，变量，需要使用反射。
-目标
+## 目标
 1. 类对象的反射
 2. 类成员数据的反射
 3. 类成员函数的反射
 
-演示
-class A: public objdect
+## 演示
+```class A: public objdect
 {
 public:
     A(){}
@@ -35,17 +37,17 @@ REGISTER_CLASS(A);
 REGISTER_CLASS_FIELD(A,m_name,string);
 REGISTER_CLASS_FIELD(A,m_age,int);
 REGISTER_CLASS_METHOD(A,f1）;
-REGISTER_CLASS_METHOD(A,f2）;
+REGISTER_CLASS_METHOD(A,f2）;```
 
-三种类型的宏
+# 三种类型的宏
 1. 类对象的反射:
 REGISTER_CLASS(A);
 2. 类成员变量的反射
 REGISTER_CLASS_FIELD(A,m_name,string)
 3. 类成员函数的反射
 REGISTER_CLASS_METHOD(A,f1）
-反射用法：
-int main()
+## 反射用法：
+```int main()
 {
     ClasFactory * factory = Singleton<ClassFactory> :: instance();
     Object * a = factory ->create_class("A");
@@ -61,11 +63,11 @@ int main()
     // 类成员函数的反射
     a->call("f1");
     a->call("f2");
-}
+}```
 
-基本框架
-单例模式
-#pragma once
+# 基本框架
+## 单例模式
+```#pragma once
 namespace zpc
 {
         namespace utility
@@ -94,10 +96,10 @@ namespace zpc
                 template<typename T>
                 T* Singleton<T>::m_instance = nullptr;
         }
-}
+}```
 创建的单例模式，保证创建的工厂只有一个，实现全局唯一的工厂类。
-工厂模式
-#pragma once
+## 工厂模式
+```#pragma once
 #include <string>
 #include<map>
 #include "Singleton.h"
@@ -130,9 +132,9 @@ namespace  zpc {
                 };
 
         }
-}
-辅助类
-#pragma once
+}```
+### 辅助类
+```#pragma once
 #include "ClassFactory.h"
 namespace zpc {
         namespace reflect
@@ -152,7 +154,7 @@ namespace zpc {
                         return obj;                                                \
                 }                                                                        \
         ClassRegister ClassRegister##className(#className,createObject##className)
-        }
+        }```
 
 类对象的反射
 
