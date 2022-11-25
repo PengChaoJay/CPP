@@ -15,7 +15,8 @@ RPC，远程过程调用，比如客户端向服务端发送请求，服务端�
 3. 类成员函数的反射
 
 ## 演示
-```class A: public objdect
+``` C++
+class A: public objdect
 {
 public:
     A(){}
@@ -32,6 +33,7 @@ public:
     string m_name;
     int m_age;
 };
+```
 
 REGISTER_CLASS(A);
 REGISTER_CLASS_FIELD(A,m_name,string);
