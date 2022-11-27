@@ -187,6 +187,24 @@ int main()
 | 代码实现 | 复杂 | 简单 |
 
 ## 数据类型的定义
+``` C++
+enum DataType
+{
+    BOOL =0,
+    CHAR,
+    INT32,
+    INT64,
+    FLOAT,
+    DOUBLE,
+    STRING,
+    VECTOR,
+    LIST,
+    MAP,
+    SET,
+    CUSTOM
+}
+```
+
 ### 基本类型序列化+反序列化
 #### 基本数据类型编码
 | 字段类型 | 字段长度(字节) | 底层编码格式 |
@@ -198,6 +216,13 @@ int main()
 | float | 5 | Type(1) + Value(4)|
 | double | 9 | Type(1) + Value(8)|
 | stirng | 可变长度 | Type(1) +Length(5) + Value(变成)|
+对于string类型，1个字节代表类型，长度用的是int32
+### 复合类型序列化+ 反序列化
+#### 复合数据类型编码
+
+#### 自定义类型序列化+ 反序列化
+#### 自定义对象类型编码
+
 
 
 
