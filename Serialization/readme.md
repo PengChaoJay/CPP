@@ -231,6 +231,7 @@ enum DataType
 | 字段类型 | 字段长度(字节) | 底层编码格式 |
 | :---:|    :----: | :----: | 
 | 自定义类 | 可变长 | Type(1) +Value(D1+D2+D3+...)|
+
 Serializable 接口类
 ``` C++
 class Serializable
