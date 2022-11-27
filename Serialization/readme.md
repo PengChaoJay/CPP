@@ -219,7 +219,13 @@ enum DataType
 对于string类型，1个字节代表类型，长度用的是int32
 ### 复合类型序列化+ 反序列化
 #### 复合数据类型编码
-
+| 字段类型 | 字段长度(字节) | 底层编码格式 |
+| :---:|    :----: | :----: | 
+| vector<T> | 可变长 | Type(1) + length(5) + Value(T+T+T+...)|
+| list<T> | 可变长 | Type(1) + length(5) + Value(T+T+T+...)|
+| map<K,V> | 可变长 | Type(1) + length(5) + Value((k,v)+(k,v)+(k,v)+...)|
+| set<T> | 可变长 | Type(1) + length(5) + Value(T+T+T+...)|
+其中length代表的int32的表示的长度
 #### 自定义类型序列化+ 反序列化
 #### 自定义对象类型编码
 
