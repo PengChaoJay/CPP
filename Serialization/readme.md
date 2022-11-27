@@ -238,7 +238,7 @@ class Serializable
 {
     public:
         virtual void serializable (DataStream & stream) const =0;
-        virtual bool unserializable (DataStream & stream) const =0;
+        virtual bool unserializable (DataStream & stream) =0;
 }
 ```
 

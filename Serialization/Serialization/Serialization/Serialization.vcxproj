@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DataStream.h" />
+    <ClInclude Include="Serializable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

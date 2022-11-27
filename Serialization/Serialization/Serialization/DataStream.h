@@ -4,6 +4,7 @@
 #include <list>
 #include <set>
 #include <iostream>
+#include "Serializable.h"
 using namespace std;
 namespace zpc {
 	namespace serialize {
@@ -38,6 +39,7 @@ namespace zpc {
 			void write(double value);
 			void write(const char* value);
 			void write(const string& value);
+			void write(const Serializable & value);
 
 			template<typename T>
 			void write(const std::vector<T>& value);
@@ -51,6 +53,8 @@ namespace zpc {
 			template<typename T>
 			void write(const std::set<T>& value);
 
+			bool read(char* type, int len);
+
 			bool read(bool& value);
 			bool read(char& value);
 			bool read(int32_t& value);
@@ -58,6 +62,7 @@ namespace zpc {
 			bool read(float& value);
 			bool read(double& value);
 			bool read(string& value);
+			bool read(Serializable & value);
 
 			template<typename T>
 			bool read(std::vector<T> & value);
@@ -79,6 +84,15 @@ namespace zpc {
 			DataStream& operator <<(double value);
 			DataStream& operator <<(const char* value);
 			DataStream& operator <<(const string& value);
+			DataStream& operator <<(const Serializable& value);
+			template<typename T>
+			DataStream& operator <<(const std::vector<T> & value);
+			template<typename T>
+			DataStream& operator <<(const std::list<T>& value);
+			template<typename K,typename V>
+			DataStream& operator <<(const std::map<K,V> & value);
+			template<typename T>
+			DataStream& operator <<(const std::set<T> & value);
 
 			DataStream& operator >> (bool& value);
 			DataStream& operator >> (char& value);
@@ -87,6 +101,16 @@ namespace zpc {
 			DataStream& operator >> (float& value);
 			DataStream& operator >> (double& value);
 			DataStream& operator >> (string& value);
+			DataStream& operator >> (Serializable& value);
+
+			template<typename T>
+			DataStream& operator >>(std::vector<T>& value);
+			template<typename T>
+			DataStream& operator >>(std::list<T>& value);
+			template<typename K, typename V>
+			DataStream& operator >> (std::map<K, V>& value);
+			template<typename T>
+			DataStream& operator >> (std::set<T>& value);
 
 
 
@@ -185,6 +209,13 @@ namespace zpc {
 			write(len);
 			write(value.data(), len);
 		}
+		// custom type coding 
+		void DataStream::write(const Serializable & value)
+		{
+			value.serializ(*this);
+		}
+
+
 		//Compound type coding
 		template<typename T>
 		void DataStream::write(const vector<T>& value)
@@ -238,8 +269,14 @@ namespace zpc {
 				write(*it);
 			}
 		}
+		bool DataStream::read(char* data, int len)
+		{
+			std::memcmp(data, (char *)&m_buf[m_pos], len);
+			m_pos += len;
+			return true;
+		}
 
-		bool DataStream::read(bool& value)
+		bool DataStream::read(bool & value)
 		{
 			if (m_buf[m_pos] != DataType::BOOL)
 			{
@@ -250,7 +287,7 @@ namespace zpc {
 			++m_pos;
 			return true;
 		}
-		bool DataStream::read(char& value)
+		bool DataStream::read(char & value)
 		{
 			if (m_buf[m_pos] != DataType::CHAR)
 			{
@@ -322,6 +359,14 @@ namespace zpc {
 			m_pos += len;
 			return true;
 		}
+		bool DataStream::read(Serializable& value)
+		{
+			value.unserializ(*this);
+			return true;
+		}
+
+
+
 		template<typename T>
 		bool DataStream::read(std::vector<T>& value)
 		{
@@ -446,6 +491,40 @@ namespace zpc {
 			write(value);
 			return *this;
 		}
+		DataStream& DataStream::operator <<(const Serializable& value)
+		{
+			write(value);
+			return *this;
+		}
+
+		template<typename T>
+		DataStream& DataStream::operator <<(const std::vector<T>& value)
+		{
+			write(value);
+			return *this;
+		}
+		template<typename T>
+		DataStream& DataStream::operator <<(const std::list<T>& value)
+		{
+			write(value);
+			return *this;
+		}
+		template<typename K, typename V>
+		DataStream& DataStream::operator <<(const std::map<K, V>& value)
+		{
+			write(value);
+			return *this;
+		}
+		template<typename T>
+		DataStream& DataStream::operator <<(const std::set<T>& value)
+		{
+			write(value);
+			return *this;
+		}
+
+
+
+
 
 		DataStream& DataStream::operator >> (bool& value)
 		{
@@ -483,8 +562,36 @@ namespace zpc {
 			read(value);
 			return *this;
 		}
+		DataStream& DataStream::operator >> (Serializable & value)
+		{
+			read(value);
+			return *this;
+		}
+		template<typename T>
+		DataStream& DataStream::operator >>(std::vector<T>& value)
+		{
+			read(value);
+			return *this;
+		}
+		template<typename T>
+		DataStream& DataStream::operator >>(std::list<T>& value)
+		{
+			read(value);
+			return *this;
 
-
+		}
+		template<typename K, typename V>
+		DataStream& DataStream::operator >> (std::map<K, V>& value)
+		{
+			read(value);
+			return *this;
+		}
+		template<typename T>
+		DataStream& DataStream::operator >> (std::set<T>& value)
+		{
+			read(value);
+			return *this;
+		}
 
 	}
 }
