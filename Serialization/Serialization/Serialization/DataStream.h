@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <map>
+#include <list>
+#include <set>
 #include <iostream>
 using namespace std;
 namespace zpc {
@@ -36,6 +39,18 @@ namespace zpc {
 			void write(const char* value);
 			void write(const string& value);
 
+			template<typename T>
+			void write(const std::vector<T>& value);
+			
+			template<typename T>
+			void write(const std::list<T>& value);
+			
+			template<typename K,typename V>
+			void write(const std::map<K,V>& value);
+
+			template<typename T>
+			void write(const std::set<T>& value);
+
 			bool read(bool& value);
 			bool read(char& value);
 			bool read(int32_t& value);
@@ -43,6 +58,18 @@ namespace zpc {
 			bool read(float& value);
 			bool read(double& value);
 			bool read(string& value);
+
+			template<typename T>
+			bool read(std::vector<T> & value);
+			template<typename T>
+			bool read(std::list<T>& value);
+
+			template<typename K, typename V>
+			bool read(std::map<K, V>& value);
+
+			template<typename T>
+			bool read(std::set<T>& value);
+
 
 			DataStream& operator <<(bool value);
 			DataStream& operator <<(char value);
@@ -158,9 +185,59 @@ namespace zpc {
 			write(len);
 			write(value.data(), len);
 		}
+		//Compound type coding
+		template<typename T>
+		void DataStream::write(const vector<T>& value)
+		{
+			char type = DataType::VECTOR;
+			write((char*)&type, sizeof(char));
+			int len = value.size();
+			write(len);
+			for (auto it = value.begin();it!=value.end();it++)
+			{
+				write(*it);
+			}
+		}
 
+		template<typename T>
+		void DataStream::write(const list<T>& value)
+		{
+			char type = DataType::List;
+			write((char*)&type, sizeof(char));
+			int len = value.size();
+			write(len);
+			for (auto it = value.begin(); it != value.end(); it++)
+			{
+				write(*it);
+			}
+		}
 
+		template<typename K, typename V>
+		void DataStream::write(const map<K, V> & value)
+		{
+			char type = DataType::MAP;
+			write((char*)&type, sizeof(char));
+			int len = value.size();
+			write(len);
+			for (auto it = value.begin();it!=value.end();it++)
+			{
+				write(it->first);
+				write(it->second);
+			}
+		}
 
+		template<typename T>
+		void DataStream::write(const set<T>& value)
+		{
+			char type = DataType::SET;
+			write((char*)&type, sizeof(char));
+			int len = value.size();
+			write(len);
+			for (auto it = value.begin(); it != value.end(); it++)
+			{
+				write(*it);
+			}
+		}
 
 		bool DataStream::read(bool& value)
 		{
@@ -245,6 +322,88 @@ namespace zpc {
 			m_pos += len;
 			return true;
 		}
+		template<typename T>
+		bool DataStream::read(std::vector<T>& value)
+		{
+			value.clear();
+			if (m_buf[m_pos] != DataType::VECTOR)
+			{
+				return false;
+			}
+			++m_pos;
+			int len;
+			read(len);
+			for (auto i =0;i<len;i++)
+			{
+				T v;
+				read(v);
+				value.emplace_back(v);
+			}
+			return true;
+		}
+		template<typename T>
+		bool DataStream::read(std::list<T>& value)
+		{
+			value.clear();
+			if (m_buf[m_pos] != DataType::LIST)
+			{
+				return false;
+			}
+			++m_pos;
+			int len;
+			read(len);
+			for (auto i =0;i<len;i++)
+			{
+				T v;
+				read(v);
+				value.emplace_back(v);
+			}
+			return true;
+		}
+
+		template<typename K, typename V>
+		bool DataStream::read(std::map<K, V>& value)
+		{
+			value.clear();
+			if (m_buf[m_pos] != DataType::MAP)
+			{
+				return false;
+			}
+			++m_pos;
+			int len;
+			read(len);
+			for (auto i = 0; i < len; i++)
+			{
+				K k;
+				read(k);
+				V v;
+				read(v);
+				value[k] = v;
+			}
+			return true;
+
+		}
+
+		template<typename T>
+		bool DataStream::read(std::set<T>& value)
+		{
+			value.clear();
+			if (m_buf[m_pos] != DataType::SET)
+			{
+				return false;
+			}
+			++m_pos;
+			int len;
+			read(len);
+			for (auto i = 0; i < len; i++)
+			{
+				T v;
+				read(v);
+				value.emplace(v);
+			}
+			return true;
+		}
+
 
 
 		DataStream& DataStream::operator <<(bool value)

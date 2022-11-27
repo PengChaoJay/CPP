@@ -228,8 +228,18 @@ enum DataType
 其中length代表的int32的表示的长度
 #### 自定义类型序列化+ 反序列化
 #### 自定义对象类型编码
-
-
+| 字段类型 | 字段长度(字节) | 底层编码格式 |
+| :---:|    :----: | :----: | 
+| 自定义类 | 可变长 | Type(1) +Value(D1+D2+D3+...)|
+Serializable 接口类
+``` C++
+class Serializable
+{
+    public:
+        virtual void serializable (DataStream & stream) const =0;
+        virtual bool unserializable (DataStream & stream) const =0;
+}
+```
 
 
 
