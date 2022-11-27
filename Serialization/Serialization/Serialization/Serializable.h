@@ -5,8 +5,28 @@ namespace zpc {
 		class Serializable
 		{
 		public:
-			virtual void serializ(DataStream& stream) const = 0;
-			virtual bool unserializ(DataStream& stream)= 0;
+			virtual void serialize(DataStream& stream) const =0 ;
+			virtual bool unserialize(DataStream& stream)=0;
 		};
+#define SERIALIZE(...)                              \
+    void serialize(DataStream & stream) const       \
+    {                                               \
+        char type = DataStream::CUSTOM;             \
+        stream.write((char *)&type, sizeof(char));  \
+        stream.write_args(__VA_ARGS__);             \
+    }                                               \
+                                                    \
+    bool unserialize(DataStream & stream)           \
+    {                                               \
+        char type;                                  \
+        stream.read(&type, sizeof(char));           \
+        if (type != DataStream::CUSTOM)             \
+        {                                           \
+            return false;                           \
+        }                                           \
+        stream.read_args(__VA_ARGS__);              \
+        return true;                                \
+    }
+
 	}
 }

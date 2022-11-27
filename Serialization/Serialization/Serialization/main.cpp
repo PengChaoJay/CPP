@@ -7,39 +7,18 @@ class A :public Serializable
 {
 public:
 	A() {}
-	A(const string& name, int age) :m_name(name), m_age(age) {}
+	A(const string& name, int age,const string & gender) :m_name(name), m_age(age),m_gender(gender)  {}
 	~A() {}
-	void serializ(DataStream& stream) const
-	{
-		char type = DataStream::DataType::CUSTOM;
-		stream.write((char*)&type, sizeof(char));
-		stream.write(m_name);
-		stream.write(m_age);
 
-		string mk;
-		stream << mk;
-		std::cout << mk;
-		stream << m_age;
-	}
-	bool unserializ(DataStream & stream)
-	{
-		char type;
-		stream.read((char*)&type, sizeof(char));
-		if ((DataStream::DataType::CUSTOM)&type!= DataStream::DataType::CUSTOM)
-		{
-			return false;
-		}
-		stream.read(m_name);
-		stream.read(m_age);
-		return true;
-	}
 	void show()
 	{
-		std::cout << m_name << m_age;
+		std::cout << m_name << m_age <<m_gender;
 	}
+	SERIALIZE(m_name,m_age,m_gender)
 private:
 	string m_name;
 	int m_age;
+	string m_gender;
 };
 
 
@@ -72,7 +51,7 @@ int main()
 	}
 	*/
 	DataStream ds;
-	A a("kee", 32);
+	A a("kee", 32,"famel");
 	ds << a;
 	
 	A b;

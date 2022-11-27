@@ -4,6 +4,7 @@
 #include <list>
 #include <set>
 #include <iostream>
+#include <algorithm>
 #include "Serializable.h"
 using namespace std;
 namespace zpc {
@@ -41,6 +42,10 @@ namespace zpc {
 			void write(const string& value);
 			void write(const Serializable & value);
 
+			template <typename T,typename ...Args>
+			void write_args(const T& head, const Args & ...args);
+			void write_args();
+
 			template<typename T>
 			void write(const std::vector<T>& value);
 			
@@ -63,6 +68,9 @@ namespace zpc {
 			bool read(double& value);
 			bool read(string& value);
 			bool read(Serializable & value);
+			template <typename T, typename ... Args>
+			bool read_args(T& head, Args & ...args);
+			bool read_args();
 
 			template<typename T>
 			bool read(std::vector<T> & value);
@@ -150,6 +158,9 @@ namespace zpc {
 			std::cout << "data size" << size << std::endl;
 		}
 
+
+
+
 		void DataStream::write(const char* data, int len)
 		{
 			reserve(len);
@@ -212,10 +223,8 @@ namespace zpc {
 		// custom type coding 
 		void DataStream::write(const Serializable & value)
 		{
-			value.serializ(*this);
+			value.serialize(*this);
 		}
-
-
 		//Compound type coding
 		template<typename T>
 		void DataStream::write(const vector<T>& value)
@@ -269,9 +278,22 @@ namespace zpc {
 				write(*it);
 			}
 		}
+		template <typename T, typename ... Args>
+		void DataStream::write_args(const T& head, const Args & ...args)
+		{
+			write(head);
+			write_args(args...);
+		}
+		void DataStream::write_args()
+		{
+
+		}
+
+
+
 		bool DataStream::read(char* data, int len)
 		{
-			std::memcmp(data, (char *)&m_buf[m_pos], len);
+			std::memcpy(data, (char *)&m_buf[m_pos], len);
 			m_pos += len;
 			return true;
 		}
@@ -361,7 +383,18 @@ namespace zpc {
 		}
 		bool DataStream::read(Serializable& value)
 		{
-			value.unserializ(*this);
+			value.unserialize(*this);
+			return true;
+		}
+
+		template <typename T, typename ... Args>
+		bool DataStream::read_args(T& head,  Args & ...args)
+		{
+			read(head);
+			return read_args(args...);
+		}
+		bool DataStream::read_args()
+		{
 			return true;
 		}
 
