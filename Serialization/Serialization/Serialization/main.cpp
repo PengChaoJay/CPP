@@ -50,13 +50,27 @@ int main()
 		std::cout << it->first << "= " << it->second << std::endl;
 	}
 	*/
+	//DataStream ds;
+	//A a("kee", 32,"famel");
+	//ds << a;
+	//
+	//A b;
+	//ds >> b;
+	//b.show();
+
+	A a("kitty", 18,"ddf");
+
 	DataStream ds;
-	A a("kee", 32,"famel");
 	ds << a;
-	
+	ds.save("a.out");
+	ds.load("a.out");
 	A b;
 	ds >> b;
 	b.show();
+
+
+
+
 	return 0;
 
 }

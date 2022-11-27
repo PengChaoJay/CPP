@@ -3,6 +3,8 @@
 #include <map>
 #include <list>
 #include <set>
+#include <fstream>
+#include <sstream>
 #include <iostream>
 #include <algorithm>
 #include "Serializable.h"
@@ -27,8 +29,16 @@ namespace zpc {
 				SET,
 				CUSTOM
 			};
+			enum ByteOrder
+			{
+				BigEndian,
+				LittleEndian
+			};
 			void show() const;
-			DataStream() :m_pos(0) {}
+			DataStream() :m_pos(0) 
+			{
+				m_byteorder = byteorder();
+			}
 			~DataStream() {}
 			// data Represent FirstAddress of write to m_buf
 			void write(const char* data, int len);
@@ -120,14 +130,23 @@ namespace zpc {
 			template<typename T>
 			DataStream& operator >> (std::set<T>& value);
 
+			void save(const string& filename);
+			void load(const string& filename);
+			const char* data() const;
+			int size() const;
+			void clear();
+			void reset();
+
 
 
 
 		private:
 			void reserve(int len);
+			ByteOrder byteorder();
 		private:
 			std::vector<char>m_buf;
 			int m_pos;
+			ByteOrder m_byteorder;
 		};
 
 		// expand capcity
@@ -152,6 +171,22 @@ namespace zpc {
 
 			}
 		}
+		DataStream::ByteOrder DataStream::byteorder()
+		{
+			int n = 0x12345678;
+			char str[4];
+			memcpy(str, &n, sizeof(int));
+			if (str[0] == 0x12)
+			{
+				return DataStream::BigEndian;
+			}
+			else if (str[0] == 0x78)
+			{
+				return DataStream::LittleEndian;
+			}
+			return  DataStream::LittleEndian;
+		}
+
 		void DataStream::show()const
 		{
 			int size = m_buf.size();
@@ -184,24 +219,49 @@ namespace zpc {
 		{
 			char type = DataType::INT32;
 			write((char*)&type, sizeof(char));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(int32_t);
+				std::reverse(first, last);
+			}
 			write((char*)&value, sizeof(int32_t));
 		}
 		void DataStream::write(int64_t value)
 		{
 			char type = DataType::INT64;
 			write((char*)&type, sizeof(char));
+
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(int64_t);
+				std::reverse(first, last);
+			}
 			write((char*)&value, sizeof(int64_t));
 		}
 		void DataStream::write(float value)
 		{
 			char type = DataType::FLOAT;
 			write((char*)&type, sizeof(char));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(float);
+				std::reverse(first, last);
+			}
 			write((char*)&value, sizeof(float));
 		}
 		void DataStream::write(double value)
 		{
 			char type = DataType::DOUBLE;
 			write((char*)&type, sizeof(char));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(double);
+				std::reverse(first, last);
+			}
 			write((char*)&value, sizeof(double));
 		}
 		void DataStream::write(const char* value)
@@ -328,6 +388,12 @@ namespace zpc {
 			}
 			++m_pos;
 			value = *((int32_t*)(&m_buf[m_pos]));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(int32_t);
+				std::reverse(first, last);
+			}
 			m_pos += 4;
 			return true;
 		}
@@ -339,6 +405,12 @@ namespace zpc {
 			}
 			++m_pos;
 			value = *((int64_t*)(&m_buf[m_pos]));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(int64_t);
+				std::reverse(first, last);
+			}
 			m_pos += 8;
 			return true;
 		}
@@ -350,6 +422,12 @@ namespace zpc {
 			}
 			++m_pos;
 			value = *((float*)(&m_buf[m_pos]));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(float);
+				std::reverse(first, last);
+			}
 			m_pos += 4;
 			return true;
 		}
@@ -361,6 +439,12 @@ namespace zpc {
 			}
 			++m_pos;
 			value = *((double*)(&m_buf[m_pos]));
+			if (m_byteorder == ByteOrder::BigEndian)
+			{
+				char* first = (char*)&value;
+				char* last = first + sizeof(double);
+				std::reverse(first, last);
+			}
 			m_pos += 8;
 			return true;
 		}
@@ -625,6 +709,43 @@ namespace zpc {
 			read(value);
 			return *this;
 		}
+
+		void DataStream::save(const string& filename)
+		{
+			ofstream fout(filename);
+			fout.write(data(), size());
+			fout.flush();
+			fout.close();
+		}
+		void DataStream::load(const string& filename)
+		{
+			ifstream fin(filename);
+			stringstream ss;
+			ss << fin.rdbuf();
+			const string& str = ss.str();
+			m_buf.clear();
+			reserve(str.size());
+			write(str.data(), str.size());
+		}
+		const char* DataStream::data() const
+		{
+			return m_buf.data();
+		}
+		int DataStream::size() const
+		{
+			return m_buf.size();
+
+		}
+		void DataStream::clear()
+		{
+			m_buf.clear();
+			m_pos = 0;
+		}
+		void DataStream::reset() 
+		{
+			m_pos = 0;
+		}
+
 
 	}
 }

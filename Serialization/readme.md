@@ -264,4 +264,46 @@ SERIALIZE宏(参数化实现)
     }
 
 ```
+### 大端与小端
+#### 字节序列
+字节顺序又称为端序或尾序（Endianness)，在计算机科学领域，指的是电脑内存中在数字通信链路中，组成多字节的字的字节排列顺序。
+
+#### 小端
+little-Endian:将低序字节存储在起始地址（在低位编地址），在变量指针转换过程中地址保存不变，比如，int64* 转到 int*32，对于机器计算来说更友好和自然
+
+#### 大端
+Big-Endian:将高序字节存储在起始地址（高位编制），内存顺序和数字的书写顺序是一致的，对于人的直观思维比较容易理解，网络字节序统一采用Big-Endian
+
+#### 检测字节序
+1. 使用库函数
+```C++
+#include <endian.h>
+__BYTE_ORDER == __LITTLE_ENDIAN
+
+__BYTE_ORDER == __BIG_ENDIAN
+
+```
+2. 通过字节存储地址判断
+```C++
+#include <stdio.h>
+#include<string.h>
+int main()
+{
+    int n = 0x12345678;
+    char str[4];
+    memcpy(str,&n,sizeof(int));
+    for(int i = 0;i<sizeof(int);i++)
+    {
+        printf("%x\n",str[i]);
+    }
+    if(str[0]==0x12)
+    {
+        printf("BIG");
+    }else if (str[0] == 0x78){
+        printf("Litte");
+    }else{
+        printf("unknow");
+    }
+}
+```
 
