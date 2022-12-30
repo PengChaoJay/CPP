@@ -209,3 +209,4 @@ uintptr_t ptr = (uintptr_t)& method;
 (*(test_method*)(ptr))(t)
 function<void(delctype(this))
 ```
+<div align="center"> <img src="https://visitor-badge.glitch.me/badge?page_id=sun0225SUN" /> </div>
